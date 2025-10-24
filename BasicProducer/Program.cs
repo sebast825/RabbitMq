@@ -1,11 +1,10 @@
 ﻿using RabbitMQ.Client;
 using System.Text;
 
-Console.WriteLine("Basic Producer iniciado!");
+Console.WriteLine("Basic Producer started!");
 
 var factory = new ConnectionFactory() { HostName = "localhost" };
 
-// En versiones recientes se usa ConnectAsync o CreateConnection de esta forma:
 using var connection = await factory.CreateConnectionAsync();
 using var channel = await connection.CreateChannelAsync();
 
@@ -24,5 +23,5 @@ await channel.BasicPublishAsync(exchange: "",
 
 Console.WriteLine($" [x] Sent {message}");
 
-Console.WriteLine(" Presiona [enter] para salir.");
+Console.WriteLine(" Press [enter] to exit.");
 Console.ReadLine();

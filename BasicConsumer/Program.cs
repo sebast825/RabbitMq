@@ -2,7 +2,7 @@
 using RabbitMQ.Client.Events;
 using System.Text;
 
-Console.WriteLine("Basic Consumer iniciado!");
+Console.WriteLine("Basic Consumer started!");
 
 var factory = new ConnectionFactory() { HostName = "localhost" };
 
