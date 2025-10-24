@@ -1,52 +1,63 @@
-# Prerequisites
-*.d
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
 
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
 
-# Linker output
-*.ilk
-*.map
-*.exp
+# Visual Studio Code
+.vscode/
 
-# Precompiled Headers
-*.gch
-*.pch
+# Visual Studio
+.vs/
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
+# NuGet
+*.nupkg
+# The packages folder can be ignored if you have package restore enabled
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+!**/[Pp]ackages/repositories.config
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+# Tye
+.tye/
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+# Logs
+*.log
+
+# Secrets
+appsettings.*.json
+!appsettings.json
+secrets.json
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Rider
+.idea/
+
+# Coverage
+*.coverage
+*.coveragexml
+*.opencover.xml
+
+# Others
+*.dbmdl
+*.bak
+*.mdf
+*.ldf
