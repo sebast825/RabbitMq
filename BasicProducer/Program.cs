@@ -14,14 +14,19 @@ await channel.QueueDeclareAsync(queue: "hello",
                      autoDelete: false,
                      arguments: null);
 
-const string message = "Hello World!";
-var body = Encoding.UTF8.GetBytes(message);
 
-await channel.BasicPublishAsync(exchange: "",
-                     routingKey: "hello",
-                     body: body);
+for (int i = 0; i < 5; i++)
+{
+     string message = "Hello World! " + i;
 
-Console.WriteLine($" [x] Sent {message}");
+    var body = Encoding.UTF8.GetBytes(message);
+
+    await channel.BasicPublishAsync(exchange: "",
+                         routingKey: "hello",
+                         body: body);
+    Console.WriteLine($" [x] Sent {message}");
+
+}
 
 Console.WriteLine(" Press [enter] to exit.");
 Console.ReadLine();
