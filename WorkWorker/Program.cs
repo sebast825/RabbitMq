@@ -17,7 +17,7 @@ await channel.QueueDeclareAsync(queue: "work_queue",
 
 // Configure Quality of Service (QoS) for fair message distribution
 // This ensures a worker doesn't get overwhelmed with too many messages
-channel.BasicQos(
+channel.BasicQosAsync(
     prefetchSize: 0,      // No limit on message size (0 = unlimited)
     prefetchCount: 1,     // Maximum 1 unacknowledged message per worker
     global: false         // Apply per consumer, not globally across connection
