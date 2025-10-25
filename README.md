@@ -3,17 +3,48 @@
 ## Objective
 Show the evolution from basic to production-ready RabbitMQ implementations.
 
-## Patterns
+---
 
-### 1. Hello World (Basic Producer/Consumer)
-- **Use Case**: Learning, development only
-- **Characteristics**: Fire-and-forget, no guarantees
-- **Code**: `/HelloWorld/`
+# Patterns
 
-### 2. Work Queues (Task Distribution)  
-- **Use Case**: Background job processing, load distribution
-- **Characteristics**: Delivery guarantees, crash recovery
-- **Code**: `/WorkQueues/`
+## 1. Hello World
+**Use Case**: Learning & prototyping  
+**Characteristics**: Fire-and-forget, no delivery guarantees
+
+**Programs:**
+- `BasicProducer.cs` → Sends messages to `hello` queue
+- `BasicConsumer.cs` → Receives messages from `hello` queue
+
+**❌Key Limitations:**
+- Messages lost if consumer crashes
+- No persistence (volatile queues)
+- Uncontrolled message distribution
+
+## 2. Work Queues  
+**Use Case**: Background job processing, load distribution  
+**Characteristics**: Delivery guarantees, crash recovery
+
+**Programs:**
+- `WorkProducer.cs` → Sends tasks to `work_queue`
+- `WorkWorker.cs` → Processes tasks from `work_queue`
+
+**✅Key Features:**
+- Messages re-delivered if worker crashes
+- Durable queues & persistent messages
+- Fair distribution with QoS control
+
+### Simulate a worker crash in Work Queues:
+```bash
+if (message.Contains("Task 3")) 
+{
+    Console.WriteLine("💥 Worker crashed before ACK!");
+    Environment.Exit(1);
+}
+
+#This line only executes for successful processing:
+await channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
+```
+
 
 ## Key Differences
 
@@ -30,17 +61,6 @@ Show the evolution from basic to production-ready RabbitMQ implementations.
 - **Hello World**: Learning, prototyping, non-critical data
 - **Work Queues**: Orders, user registrations, payment processing
 
-  
-
-## Hello World with RabbitMQ in C#
-
-This project is a simple Hello World example using RabbitMQ in C#.
-It contains two programs:
-
-- `BasicProducer.cs` → Sends 5 messages to the hello queue 
-- `BasicConsumer.cs` → Receives messages from the hello queue
-
-> Note: If you open multiple BasicConsumer instances, the messages will be distributed between them using RabbitMQ's round-robin load balancing.
 
 
 ---
