@@ -1,4 +1,38 @@
-# Hello World con RabbitMQ en C#
+# RabbitMQ Patterns in C#
+
+## Objective
+Show the evolution from basic to production-ready RabbitMQ implementations.
+
+## Patterns
+
+### 1. Hello World (Basic Producer/Consumer)
+- **Use Case**: Learning, development only
+- **Characteristics**: Fire-and-forget, no guarantees
+- **Code**: `/HelloWorld/`
+
+### 2. Work Queues (Task Distribution)  
+- **Use Case**: Background job processing, load distribution
+- **Characteristics**: Delivery guarantees, crash recovery
+- **Code**: `/WorkQueues/`
+
+## Key Differences
+
+| Aspect | Hello World | Work Queues |
+|--------|-------------|-------------|
+| **Durability** | `false` | `true` |
+| **Acknowledgments** | `autoAck: true` | `autoAck: false` + manual Ack |
+| **Message Persistence** | No | `Persistent = true` |
+| **Quality of Service** | No control | `BasicQos(prefetchCount: 1)` |
+| **Crash Recovery** | ❌ Messages lost | ✅ Messages re-delivered |
+| **Use Case** | Development | Production |
+
+##  When to Use Which?
+- **Hello World**: Learning, prototyping, non-critical data
+- **Work Queues**: Orders, user registrations, payment processing
+
+  
+
+## Hello World with RabbitMQ in C#
 
 This project is a simple Hello World example using RabbitMQ in C#.
 It contains two programs:
