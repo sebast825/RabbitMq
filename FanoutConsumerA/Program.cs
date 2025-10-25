@@ -2,14 +2,15 @@
 using RabbitMQ.Client.Events;
 using System.Text;
 
-Console.WriteLine("👂 Fanout Consumer A iniciado!");
+Console.WriteLine("👂 Fanout Consumer A started!");
 
 var factory = new ConnectionFactory() { HostName = "localhost" };
 
+// Create the connection and channel
 using var connection = await factory.CreateConnectionAsync();
 using var channel = await connection.CreateChannelAsync();
 
-// Declarar el mismo exchange
+// Declare the same FANOUT exchange (must match the producer)
 await channel.ExchangeDeclareAsync(
     exchange: "fanout-exchange",
     type: ExchangeType.Fanout,
@@ -17,32 +18,34 @@ await channel.ExchangeDeclareAsync(
     autoDelete: false
 );
 
-// Crear una cola TEMPORAL y única para este consumer
-var queueName = (await channel.QueueDeclareAsync()).QueueName;
+// Create a TEMPORARY and UNIQUE queue for this consumer
+var queueName = (await channel.QueueDeclareAsync(durable: true)).QueueName;
 
-// Vincular la cola al exchange fanout
+// Bind the queue to the fanout exchange
 await channel.QueueBindAsync(
     queue: queueName,
     exchange: "fanout-exchange",
-    routingKey: ""  // Vacío para fanout
+    routingKey: ""  // Empty for fanout
 );
 
-Console.WriteLine($"✅ Conectado. Cola: {queueName}");
-Console.WriteLine("🔄 Esperando mensajes...");
+Console.WriteLine($"✅ Connected. Queue: {queueName}");
+Console.WriteLine("🔄 Waiting for messages...");
 
+// Create the consumer and handle received messages
 var consumer = new AsyncEventingBasicConsumer(channel);
 consumer.ReceivedAsync += async (model, ea) =>
 {
     var body = ea.Body.ToArray();
-    var mensaje = Encoding.UTF8.GetString(body);
-    Console.WriteLine($"📥 [Consumer A] Recibido: {mensaje}");
+    var message = Encoding.UTF8.GetString(body);
+    Console.WriteLine($"📥 [Consumer A] Received: {message}");
 };
 
+// Start consuming messages
 await channel.BasicConsumeAsync(
     queue: queueName,
     autoAck: true,
     consumer: consumer
 );
 
-Console.WriteLine("Press Enter para salir.");
+Console.WriteLine("Press Enter to exit.");
 Console.ReadLine();
