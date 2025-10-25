@@ -1,9 +1,8 @@
-# RabbitMQ Patterns in C#
+# RabbitMQ Patterns in C# #
 
-## Objective
+## Objective ##
 Show the evolution from basic to production-ready RabbitMQ implementations.
 
----
 
 # Patterns
 
@@ -118,6 +117,7 @@ var queueName = (await channel.QueueDeclareAsync()).QueueName;  // Auto-generate
 
 ---
 
+
 ## How to Run
 
 1. Start RabbitMQ (Docker recommended):
@@ -151,4 +151,53 @@ dotnet run --project WorkWorker/
 # Terminal 3 - Producer
 dotnet run --project WorkProducer/
 ```
+
+### Fanout
+```bash
+# Terminal 1 - Create Consumer B queue (persistent)
+dotnet run --project fanoutConsumerB
+
+# Terminal 2 - Create Consumer A queue (temporary)  
+dotnet run --project fanoutConsumerA
+
+# Terminal 3 - Send persistent messages
+dotnet run --project fanoutProducer
+```
+---
+
+## Testing Scenarios - Fanout
+
+### Scenario 1: Real-time Message Broadcasting
+> **Objective**: Verify all active consumers receive messages simultaneously
+
+1. Start **BOTH** Consumer A and Consumer B
+2. Run the Producer to send messages
+3. **Expected**: Both consumers receive all messages immediately
+
+### Scenario 2: Message Persistence  
+> **Objective**: Test durable queue behavior with offline consumers
+
+1. Start only **Consumer B** (creates persistent queue)
+2. Stop Consumer B
+3. Run Producer to send messages (consumer offline)
+4. Restart Consumer B
+5. **Expected**: Consumer B receives all pending messages
+
+### Scenario 3: RabbitMQ Restart Recovery
+> **Objective**: Verify message survival after broker restart
+
+1. Configure persistent queues and send messages
+2. Restart RabbitMQ container (`docker restart rabbitmq`)
+3. Reconnect both consumers
+4. **Expected**: Only Consumer B recovers previous messages
+
+### Scenario 4: Temporary Queue Ephemeral Behavior
+> **Objective**: Demonstrate auto-delete queue characteristics
+
+1. Start Consumer A (temporary queue)
+2. Send some messages
+3. Stop Consumer A
+4. Restart RabbitMQ
+5. Start Consumer A again
+6. **Expected**: No messages received (queue was deleted)
 
