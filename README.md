@@ -1,9 +1,8 @@
-# RabbitMQ Patterns in C#
+# RabbitMQ Patterns in C# #
 
-## Objective
+## Objective ##
 Show the evolution from basic to production-ready RabbitMQ implementations.
 
----
 
 # Patterns
 
@@ -46,20 +45,65 @@ await channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
 ```
 
 
+## 3. Fanout Pattern
+**Use Case:** Broadcast messages to multiple consumers
+**Characteristics:** Each message delivered to ALL bound queues
+
+### Key Configuration
+- **Durable Exchange:** `durable: true` - survives broker restarts  
+- **Persistent Messages:** `properties.Persistent = true` - saved to disk
+
+### Queue Configuration Examples
+
+#### Persistent Queue (Consumer B)
+
+```bash
+var queue = await channel.QueueDeclareAsync(
+    queue: "fanout-consumerB-queue",  // Explicit name
+    durable: true,                    // Survives broker restarts
+    exclusive: false,                 // Multiple consumers can connect
+    autoDelete: false                 // Not automatically deleted
+);
+);
+```
+**Characteristics:**
+
+- Messages persist after RabbitMQ restarts
+- Multiple instances can connect to the same queue
+- Ideal for production services
+
+#### Temporary Queue (Consumer A)
+
+```bash
+var queueName = (await channel.QueueDeclareAsync()).QueueName;  // Auto-generated name
+```
+
+**Characteristics:**
+
+- Queue deleted when consumer disconnects
+- Pending messages lost during restarts
+- Useful for debugging/temporary scenarios
+
+  
+
 ## Key Differences
 
-| Aspect | Hello World | Work Queues |
-|--------|-------------|-------------|
-| **Durability** | `false` | `true` |
-| **Acknowledgments** | `autoAck: true` | `autoAck: false` + manual Ack |
-| **Message Persistence** | No | `Persistent = true` |
-| **Quality of Service** | No control | `BasicQos(prefetchCount: 1)` |
-| **Crash Recovery** | ❌ Messages lost | ✅ Messages re-delivered |
-| **Use Case** | Development | Production |
+| Aspect | Hello World | Work Queues | Fanout Pattern |
+|--------|-------------|-------------|----------------|
+| **Message Routing** | Direct to queue | Direct to queue | Broadcast to all bound queues |
+| **Durability** | `false` | `true` | Configurable (persistent/temporary) |
+| **Acknowledgments** | `autoAck: true` | `autoAck: false` + manual Ack | Configurable per consumer |
+| **Message Persistence** | No | `Persistent = true` | `Persistent = true` (recommended) |
+| **Quality of Service** | No control | `BasicQos(prefetchCount: 1)` | Configurable per consumer |
+| **Crash Recovery** | ❌ Messages lost | ✅ Messages re-delivered | ✅ With persistent queues |
+| **Scalability** | Single consumer | Multiple competing consumers | Multiple parallel consumers |
+| **Use Case** | Development & testing | Background job processing | Event broadcasting & notifications |
 
-##  When to Use Which?
+
+###  When to Use Which?
 - **Hello World**: Learning, prototyping, non-critical data
 - **Work Queues**: Orders, user registrations, payment processing
+- **Fanout**: Real-time notifications, event broadcasting, multiple subscribers
 
 
 
@@ -72,6 +116,7 @@ await channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
 
 
 ---
+
 
 ## How to Run
 
@@ -106,4 +151,53 @@ dotnet run --project WorkWorker/
 # Terminal 3 - Producer
 dotnet run --project WorkProducer/
 ```
+
+### Fanout
+```bash
+# Terminal 1 - Create Consumer B queue (persistent)
+dotnet run --project fanoutConsumerB
+
+# Terminal 2 - Create Consumer A queue (temporary)  
+dotnet run --project fanoutConsumerA
+
+# Terminal 3 - Send persistent messages
+dotnet run --project fanoutProducer
+```
+---
+
+## Testing Scenarios - Fanout
+
+### Scenario 1: Real-time Message Broadcasting
+> **Objective**: Verify all active consumers receive messages simultaneously
+
+1. Start **BOTH** Consumer A and Consumer B
+2. Run the Producer to send messages
+3. **Expected**: Both consumers receive all messages immediately
+
+### Scenario 2: Message Persistence  
+> **Objective**: Test durable queue behavior with offline consumers
+
+1. Start only **Consumer B** (creates persistent queue)
+2. Stop Consumer B
+3. Run Producer to send messages (consumer offline)
+4. Restart Consumer B
+5. **Expected**: Consumer B receives all pending messages
+
+### Scenario 3: RabbitMQ Restart Recovery
+> **Objective**: Verify message survival after broker restart
+
+1. Configure persistent queues and send messages
+2. Restart RabbitMQ container (`docker restart rabbitmq`)
+3. Reconnect both consumers
+4. **Expected**: Only Consumer B recovers previous messages
+
+### Scenario 4: Temporary Queue Ephemeral Behavior
+> **Objective**: Demonstrate auto-delete queue characteristics
+
+1. Start Consumer A (temporary queue)
+2. Send some messages
+3. Stop Consumer A
+4. Restart RabbitMQ
+5. Start Consumer A again
+6. **Expected**: No messages received (queue was deleted)
 
