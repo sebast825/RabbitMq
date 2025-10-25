@@ -12,12 +12,14 @@ using var channel = await connection.CreateChannelAsync();
 await channel.ExchangeDeclareAsync(
     exchange: "fanout-exchange",
     type: ExchangeType.Fanout,
-    durable: false,
+    durable: true,
     autoDelete: false
 );
 
 Console.WriteLine("Exchange 'fanout-exchange' creado!");
 Console.WriteLine("Escribe mensajes (exit para salir):");
+
+var properties = new BasicProperties { Persistent = true };
 
 while (true)
 {
@@ -33,7 +35,10 @@ while (true)
     await channel.BasicPublishAsync(
         exchange: "fanout-exchange",
         routingKey: "",  // Vacío para fanout
-        body: body
+        body: body,
+        mandatory: false,
+        basicProperties: properties
+
     );
 
     Console.WriteLine($"📤 [FANOUT] Enviado: {mensaje}");
