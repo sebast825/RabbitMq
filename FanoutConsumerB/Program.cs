@@ -2,7 +2,7 @@
 using RabbitMQ.Client.Events;
 using System.Text;
 
-Console.WriteLine("👂 Fanout Consumer B iniciado!");  // ← Cambia aquí
+Console.WriteLine("👂 Fanout Consumer B iniciado!");  
 
 var factory = new ConnectionFactory() { HostName = "localhost" };
 
@@ -12,14 +12,23 @@ using var channel = await connection.CreateChannelAsync();
 await channel.ExchangeDeclareAsync(
     exchange: "fanout-exchange",
     type: ExchangeType.Fanout,
-    durable: false,
+    durable: true,                    // Sobrevive a reinicios
     autoDelete: false
 );
 
-var queueName = (await channel.QueueDeclareAsync(exclusive: true)).QueueName;
+// BIEN ✅ - Usar QueueDeclareAsync con queue name explícito
+var queue = await channel.QueueDeclareAsync(
+    queue: "fanout-consumerB-queue",  // ← NOMBRE FIJO
+    durable: true,
+    exclusive: false,
+    autoDelete: false
+);
+var queueName = queue.QueueName;
+
 await channel.QueueBindAsync(
     queue: queueName,
     exchange: "fanout-exchange",
+
     routingKey: ""
 );
 
@@ -31,7 +40,8 @@ consumer.ReceivedAsync += async (model, ea) =>
 {
     var body = ea.Body.ToArray();
     var mensaje = Encoding.UTF8.GetString(body);
-    Console.WriteLine($"📥 [Consumer B] Recibido: {mensaje}");  // ← Y aquí
+
+    Console.WriteLine($"📥 [Consumer B] Recibido: {mensaje}");
 };
 
 await channel.BasicConsumeAsync(
