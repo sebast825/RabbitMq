@@ -13,7 +13,7 @@ using var channel = await connection.CreateChannelAsync();
 await channel.ExchangeDeclareAsync(
     exchange: "fanout-exchange",
     type: ExchangeType.Fanout,
-    durable: false,
+    durable: true,
     autoDelete: false
 );
 
