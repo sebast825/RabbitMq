@@ -18,7 +18,7 @@ await channel.ExchangeDeclareAsync(
 );
 
 // Crear una cola TEMPORAL y única para este consumer
-var queueName = (await channel.QueueDeclareAsync(exclusive: true)).QueueName;
+var queueName = (await channel.QueueDeclareAsync()).QueueName;
 
 // Vincular la cola al exchange fanout
 await channel.QueueBindAsync(
