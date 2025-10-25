@@ -15,7 +15,7 @@ Show the evolution from basic to production-ready RabbitMQ implementations.
 - `BasicProducer.cs` → Sends messages to `hello` queue
 - `BasicConsumer.cs` → Receives messages from `hello` queue
 
-**❌Key Limitations:**
+**Key Limitations ❌**
 - Messages lost if consumer crashes
 - No persistence (volatile queues)
 - Uncontrolled message distribution
@@ -28,12 +28,12 @@ Show the evolution from basic to production-ready RabbitMQ implementations.
 - `WorkProducer.cs` → Sends tasks to `work_queue`
 - `WorkWorker.cs` → Processes tasks from `work_queue`
 
-**✅Key Features:**
+**Key Features ✅**
 - Messages re-delivered if worker crashes
 - Durable queues & persistent messages
 - Fair distribution with QoS control
 
-### Simulate a worker crash in Work Queues:
+### Simulate a Worker Crash in Work Queues:
 ```bash
 if (message.Contains("Task 3")) 
 {
@@ -83,17 +83,27 @@ await channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
 docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management
 
 ```
-2. In one console, run the BasicConsumer project:
+
+### Hello World
 
 ```bash
-dotnet run --project ./BasicConsumer/BasicConsumer.csproj
+# Terminal 1 - Consumer
+dotnet run --project BasicConsumer/
 
+# Terminal 2 - Producer  
+dotnet run --project BasicProducer/
 ```
-3. In another console, run the BasicProducer project:
+
+### Work Queues
 
 ```bash
-dotnet run --project ./BasicProducer/BasicProducer.csproj
+# Terminal 1 - Worker (first instance)
+dotnet run --project WorkWorker/
 
+# Terminal 2 - Worker (second instance)
+dotnet run --project WorkWorker/
+
+# Terminal 3 - Producer
+dotnet run --project WorkProducer/
 ```
-
 
